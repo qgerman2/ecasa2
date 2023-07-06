@@ -28,13 +28,14 @@ auto = true
 function setup() {
 	createCanvas(1280, 720)
 	timestep = 1/60
-	control_offset = 135.931347
+	control_offset = param.g / (2*Math.cos(param.alpha)/param.m)
 }
 
 function control(s) {
 	return {
-		T1 : -8.99508687596126*s.theta - 0.0101699793138771*s.x + 1.66276590023259*s.y - 17.3871490145351*s.dtheta - 0.179184595947719*s.dx + 11.0851165329715*s.dy + control_offset,
-		T2 : 10.2765553326191*s.theta + 0.0138150694274782*s.x + 1.66277209557984*s.y + 18.4670683818401*s.dtheta + 0.222850477529636*s.dx + 11.0851332514327*s.dy + control_offset
+		T1 : -9.00668242359435*s.theta - 0.0102160401165573*s.x + 1.6627661565654*s.y - 17.317051994822*s.dtheta - 0.179734374117869*s.dx + 11.0851172572598*s.dy + control_offset,
+		T2 : 10.2537624674079*s.theta + 0.0137690087985938*s.x + 1.66277212643942*s.y + 18.3494747507769*s.dtheta + 0.222300703138698*s.dx + 11.08513321895*s.dy + control_offset
+
 	}
 }
 
