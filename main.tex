@@ -1,0 +1,341 @@
+\documentclass[titlepage, letterpaper]{article}
+\usepackage{polyglossia}
+\setdefaultlanguage{spanish}
+
+\usepackage{svg}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{hyperref}
+
+\title{\textbf{Laboratorio 2:}\\
+Estimación y control de actitud en sistemas aeroespaciales}
+\author{Germán Quijada}
+
+\begin{document}
+
+\maketitle
+
+\pagebreak
+\section{Definición del problema}
+Se solicita caracterizar, simular y controlar el siguiente sistema dinámico
+\begin{figure}[H]
+	\centering
+	\includesvg{img/sistema}
+	\caption{Representación de sistema a trabajar.}
+\end{figure}
+El sistema se trata de un pequeño satélite capaz de traslación y rotación en el plano por lo que su movimiento se puede describir con 3 grados de libertad, $x$ e $y$ para la traslación y $\theta$ para la rotación. Además cuenta con 2 propulsores a un ángulo $\alpha$ de los costados del satélite, el empuje que realizan son la acción de control disponible. Finalmente las variables $w$ y $h$ describen su ancho y alto respectivamente.
+
+Se busca encontrar las ecuaciones del movimiento del sistema para poder realizar simulaciones con algún método de integración, luego lograr establecer un controlador automático y finalmente poner el controlador a prueba a ver si funciona si las lecturas del estado del satélite fuesen de sensores con ruido.
+
+\section{Ecuaciones del movimiento}
+
+Primero se determinan las fuerzas actuando en el eje horizontal, vertical y los momentos.
+
+\begin{figure}[H]
+	\centering
+	\includesvg{img/dcl}
+	\caption{Diagrama de cuerpo libre.}
+\end{figure}
+
+Las fuerzas y momentos que actúan en el \emph{body frame} debido a los propulsores son las siguientes
+
+\begin{equation*}F_{bf} = \left[\begin{matrix}\left(T_{1} - T_{2}\right) \sin{\left(\alpha \right)}\\\left(- T_{1} - T_{2}\right) \cos{\left(\alpha \right)}\end{matrix}\right]\end{equation*}
+\begin{equation*}T_{bf} = \left(T_{1} - T_{2}\right) \left(- \frac{h \sin{\left(\alpha \right)}}{2} + \frac{w \cos{\left(\alpha \right)}}{2}\right)\end{equation*}
+
+Para obtener las ecuaciones en el sistema inercial, se multiplican las fuerzas por la matriz de rotación, el momento no es necesario rotarlo
+
+\begin{equation*}R = \left[\begin{matrix}\cos{\left(\theta{\left(t \right)} \right)} & - \sin{\left(\theta{\left(t \right)} \right)}\\\sin{\left(\theta{\left(t \right)} \right)} & \cos{\left(\theta{\left(t \right)} \right)}\end{matrix}\right]\end{equation*}
+
+También se aprovecha de agregar la fuerza de gravedad, que actúa en relación con el sistema inercial y no con el body frame
+
+\[F = R\cdot F_{bf} + \pmb{g}\]
+
+\begin{equation*}F = \left[\begin{matrix}- \left(- T_{1} - T_{2}\right) \sin{\left(\theta{\left(t \right)} \right)} \cos{\left(\alpha \right)} + \left(T_{1} - T_{2}\right) \sin{\left(\alpha \right)} \cos{\left(\theta{\left(t \right)} \right)}\\g m + \left(- T_{1} - T_{2}\right) \cos{\left(\alpha \right)} \cos{\left(\theta{\left(t \right)} \right)} + \left(T_{1} - T_{2}\right) \sin{\left(\alpha \right)} \sin{\left(\theta{\left(t \right)} \right)}\end{matrix}\right]\end{equation*}
+
+Luego para obtener las ecuaciones del movimiento, se aplica la segunda ley de Newton para las fuerzas y su equivalente para el momento
+
+\begin{equation*}F = m \frac{d^{2}}{d t^{2}} \pmb{x}{\left(t \right)}\end{equation*}
+
+\begin{equation*}T = I \frac{d^{2}}{d t^{2}} \theta{\left(t \right)}\end{equation*}
+
+Donde la inercia es la de un rectángulo \emph{fino}
+
+\begin{equation*}I = \frac{m \left(h^{2} + w^{2}\right)}{12}\end{equation*}
+
+De esta forma las ecuaciones del movimiento son
+
+\begin{equation*}\frac{d^{2}}{d t^{2}} x{\left(t \right)} = \frac{- \left(- T_{1} - T_{2}\right) \sin{\left(\theta{\left(t \right)} \right)} \cos{\left(\alpha \right)} + \left(T_{1} - T_{2}\right) \sin{\left(\alpha \right)} \cos{\left(\theta{\left(t \right)} \right)}}{m}\end{equation*}
+
+\begin{equation*}\frac{d^{2}}{d t^{2}} y{\left(t \right)} = \frac{g m + \left(- T_{1} - T_{2}\right) \cos{\left(\alpha \right)} \cos{\left(\theta{\left(t \right)} \right)} + \left(T_{1} - T_{2}\right) \sin{\left(\alpha \right)} \sin{\left(\theta{\left(t \right)} \right)}}{m}\end{equation*}
+
+\begin{equation*}\frac{d^{2}}{d t^{2}} \theta{\left(t \right)} = \frac{12.0 \left(T_{1} - T_{2}\right) \left(- \frac{h \sin{\left(\alpha \right)}}{2} + \frac{w \cos{\left(\alpha \right)}}{2}\right)}{m \left(h^{2} + w^{2}\right)}\end{equation*}
+
+Para comprobar que el sistema de ecuaciones es realmente así, se creó una simulación interactiva que permitiese verificar el movimiento. Esto fue muy útil, ya que en primeras iteraciones del sistema de ecuaciones este no era correcto y comprobarlo de otra forma hubiera sido muy engorroso o simplemente no se hubiera notado.
+
+\url{https://qgerman2.github.io/ecasa2/}
+
+\section{Vector estado}
+
+El vector estado será el siguiente
+\begin{equation*}\pmb{x}{\left(t \right)} = \left[\begin{matrix}x{\left(t \right)}\\y{\left(t \right)}\\\theta{\left(t \right)}\\\frac{d}{d t} x{\left(t \right)}\\\frac{d}{d t} y{\left(t \right)}\\\frac{d}{d t} \theta{\left(t \right)}\end{matrix}\right]\end{equation*}
+
+Y las expresiones a integrar en el tiempo son
+\begin{equation*}\frac{d}{d t} \pmb{x}{\left(t \right)} = \left[\begin{matrix}\frac{d}{d t} x{\left(t \right)}\\\frac{d}{d t} y{\left(t \right)}\\\frac{d}{d t} \theta{\left(t \right)}\\\frac{T_{1} \sin{\left(\alpha \right)} \cos{\left(\theta{\left(t \right)} \right)}}{m} + \frac{T_{1} \sin{\left(\theta{\left(t \right)} \right)} \cos{\left(\alpha \right)}}{m} - \frac{T_{2} \sin{\left(\alpha \right)} \cos{\left(\theta{\left(t \right)} \right)}}{m} + \frac{T_{2} \sin{\left(\theta{\left(t \right)} \right)} \cos{\left(\alpha \right)}}{m}\\\frac{T_{1} \sin{\left(\alpha \right)} \sin{\left(\theta{\left(t \right)} \right)}}{m} - \frac{T_{1} \cos{\left(\alpha \right)} \cos{\left(\theta{\left(t \right)} \right)}}{m} - \frac{T_{2} \sin{\left(\alpha \right)} \sin{\left(\theta{\left(t \right)} \right)}}{m} - \frac{T_{2} \cos{\left(\alpha \right)} \cos{\left(\theta{\left(t \right)} \right)}}{m} + g\\- \frac{6.0 T_{1} h \sin{\left(\alpha \right)}}{h^{2} m + m w^{2}} + \frac{6.0 T_{1} w \cos{\left(\alpha \right)}}{h^{2} m + m w^{2}} + \frac{6.0 T_{2} h \sin{\left(\alpha \right)}}{h^{2} m + m w^{2}} - \frac{6.0 T_{2} w \cos{\left(\alpha \right)}}{h^{2} m + m w^{2}}\end{matrix}\right]\end{equation*}
+
+Al tener grados de libertad dentro de funciones trigonométricas y multiplicación de acciones de control por grados de libertad, se considera que el sistema no es lineal.
+
+\section{“Diagrama de bloques”}
+
+\begin{figure}[H]
+	\centering
+	\includesvg{img/bloques1}
+	\caption{Intento de diagrama de bloques.}
+\end{figure}
+
+\section{Linealización}
+
+Para posteriores procedimientos, es necesario linealizar el sistema de ecuaciones.
+
+Se linealizara el sistema asumiendo una condición en la que está flotando quieto por lo que los propulsores están ejerciendo una aceleración equivalente a la aceleración de gravedad, además se asume que la rotación $\theta$ es muy cercana a 0.
+
+\begin{equation*}\frac{d^{2}}{d t^{2}} x{\left(t \right)} = g \theta{\left(t \right)} + \frac{\left(T_{1} - T_{2}\right) \sin{\left(\alpha \right)}}{m}\end{equation*}
+
+\begin{equation*}\frac{d^{2}}{d t^{2}} y{\left(t \right)} = \frac{\left(- T_{1} - T_{2}\right) \cos{\left(\alpha \right)}}{m}\end{equation*}
+
+\begin{equation*}\frac{d^{2}}{d t^{2}} \theta{\left(t \right)} = \frac{12.0 \left(T_{1} - T_{2}\right) \left(- \frac{h \sin{\left(\alpha \right)}}{2} + \frac{w \cos{\left(\alpha \right)}}{2}\right)}{m \left(h^{2} + w^{2}\right)}\end{equation*}
+
+Las ecuaciones son muy parecidas a las ecuaciones antes de rotarlas al sistema inercial, cabe destacar la inclusión del término con la aceleración de gravedad en la aceleración horizontal.
+
+Al asumirse que los propulsores están ejerciendo empuje equivalente a la gravedad, esta se puede eliminar de la aceleración vertical, sin embargo para el movimiento horizontal esto tiene el efecto de que si el satélite está inclinado, existe un componente horizontal de los propulsores proporcional a la gravedad, por lo que se agrega a la ecuación.
+
+\section{Espacio estado}
+
+Para lograr el control de múltiples variables por medio de la acción de control, se opta por el método de posicionamiento de polos para un sistema representado por matrices espacio estado.
+
+\begin{equation*}
+	\frac{d}{d t} \pmb{x}{\left(t \right)}
+	= A\pmb{x}(t) + B \pmb{u}(t)
+\end{equation*}
+
+Donde el vector $\pmb{u}$ es
+
+\begin{equation*}
+	\pmb{u}(t) = \left[\begin{matrix}T_{1}\\T_{2}\end{matrix}\right]
+\end{equation*}
+
+El sistema a convertir es el linealizado
+
+\begin{equation*}\frac{d}{d t} \pmb{x}{\left(t \right)} = \left[\begin{matrix}\frac{d}{d t} x{\left(t \right)}\\\frac{d}{d t} y{\left(t \right)}\\\frac{d}{d t} \theta{\left(t \right)}\\\frac{T_{1} \sin{\left(\alpha \right)}}{m} - \frac{T_{2} \sin{\left(\alpha \right)}}{m} + g \theta{\left(t \right)}\\- \frac{T_{1} \cos{\left(\alpha \right)}}{m} - \frac{T_{2} \cos{\left(\alpha \right)}}{m}\\- \frac{6.0 T_{1} h \sin{\left(\alpha \right)}}{h^{2} m + m w^{2}} + \frac{6.0 T_{1} w \cos{\left(\alpha \right)}}{h^{2} m + m w^{2}} + \frac{6.0 T_{2} h \sin{\left(\alpha \right)}}{h^{2} m + m w^{2}} - \frac{6.0 T_{2} w \cos{\left(\alpha \right)}}{h^{2} m + m w^{2}}\end{matrix}\right]\end{equation*}
+
+y las matrices correspondientes son
+
+\begin{equation*}
+	A = \left[\begin{matrix}0 & 0 & 0 & 1 & 0 & 0\\0 & 0 & 0 & 0 & 1 & 0\\0 & 0 & 0 & 0 & 0 & 1\\0 & 0 & g & 0 & 0 & 0\\0 & 0 & 0 & 0 & 0 & 0\\0 & 0 & 0 & 0 & 0 & 0\end{matrix}\right]
+\end{equation*}
+
+\begin{equation*}
+	B = \left[\begin{matrix}0 & 0\\0 & 0\\0 & 0\\\frac{\sin{\left(\alpha \right)}}{m} & - \frac{\sin{\left(\alpha \right)}}{m}\\- \frac{\cos{\left(\alpha \right)}}{m} & - \frac{\cos{\left(\alpha \right)}}{m}\\- \frac{6.0 h \sin{\left(\alpha \right)}}{h^{2} m + m w^{2}} + \frac{6.0 w \cos{\left(\alpha \right)}}{h^{2} m + m w^{2}} & \frac{6.0 h \sin{\left(\alpha \right)}}{h^{2} m + m w^{2}} - \frac{6.0 w \cos{\left(\alpha \right)}}{h^{2} m + m w^{2}}\end{matrix}\right]
+\end{equation*}
+
+\section{Posicionamiento de polos}
+
+El control con posicionamiento de polos se realiza obteniendo una matriz de ganancia $K$, la cual multiplicada con el estado actual de la siguiente manera resulta en las acciones de control apropiadas para llevar el vector estado a 0.
+
+\[\pmb{u}(t) = -K\pmb{x}(t)\]
+
+\begin{equation*}
+	\frac{d}{d t} \pmb{x}{\left(t \right)}
+	= A\pmb{x}(t) + B \pmb{u}(t)
+\end{equation*}
+
+Para el posicionamiento de polos es necesario evaluar numéricamente las matrices, en función de lo solicitado en el laboratorio y observaciones durante el desarrollo se utilizan los siguientes valores.
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{|c|c|}
+	\hline
+	Parámetro & Valor          \\ \hline
+	$g$       & $9.81 [m/s^2]$ \\ \hline
+	$\alpha$  & $30 [grados]$  \\ \hline
+	$m$       & $24 [kg]$      \\ \hline
+	$w$       & $0.2 [m]$     \\ \hline
+	$h$       & $0.3 [m]$     \\ \hline
+	\end{tabular}
+	\caption{Parámetros de simulación.}
+\end{table}
+
+Las matrices espacio estado evaluadas quedan
+
+\begin{equation*}
+	A = \left[\begin{matrix}0 & 0 & 0 & 1.0 & 0 & 0\\0 & 0 & 0 & 0 & 1.0 & 0\\0 & 0 & 0 & 0 & 0 & 1.0\\0 & 0 & 9.81 & 0 & 0 & 0\\0 & 0 & 0 & 0 & 0 & 0\\0 & 0 & 0 & 0 & 0 & 0\end{matrix}\right]
+\end{equation*}
+
+\begin{equation*}
+	B = \left[\begin{matrix}0 & 0\\0 & 0\\0 & 0\\0.0208333333333333 & -0.0208333333333333\\-0.0360843918243516 & -0.0360843918243516\\0.0446251553017072 & -0.0446251553017072\end{matrix}\right]
+\end{equation*}
+
+Se definen los siguientes polos de manera arbitraria.
+
+\begin{equation*}
+	Polos = \left[\begin{matrix}-0.1 & -0.2 & -0.3 & -0.5 & -0.6 & -0.7\end{matrix}\right]
+\end{equation*}
+
+La función del paquete \emph{SciPy}, \texttt{scipy.place\_poles(A, B, poles)} entrega la matriz de ganancia $K$.
+
+\begin{equation*}
+	K = \left[\begin{matrix}0.01021 & -1.66276 & 9.00668 & 0.17973 & -11.08511 & 17.31705\\-0.01376 & -1.66277 & -10.25376 & -0.22230 & -11.08513 & -18.34947\end{matrix}\right]
+\end{equation*}
+
+Finalmente se verifica que el control sea efectivo, realizando una simulación interactiva \url{https://qgerman2.github.io/ecasa2/}
+
+\section{Simulación sin ruido}
+
+Se busca llevar el satélite con la siguiente condición inicial al origen.
+
+\begin{equation*}\left[\begin{matrix}x{\left(0 \right)}\\y{\left(0 \right)}\\\theta{\left(0 \right)}\\\left. \frac{d}{d t} x{\left(t \right)} \right|_{\substack{ t=0 }}\\\left. \frac{d}{d t} y{\left(t \right)} \right|_{\substack{ t=0 }}\\\left. \frac{d}{d t} \theta{\left(t \right)} \right|_{\substack{ t=0 }}\end{matrix}\right] = \left[\begin{matrix}200\\1000\\0\\-1\\-5\\0\end{matrix}\right]\end{equation*}
+
+Se simulan las ecuaciones del movimiento \textbf{no lineales} integrando por método de Euler a un paso de tiempo de $1/60 [s]$, aplicando en cada paso el control por medio de la matriz de ganancia $K$ y los resultados son los siguientes.
+
+\begin{figure}[H]
+	\centering
+	\includesvg{img/sim_sinruido}
+	\caption{Simulación con control.}
+\end{figure}
+
+Y la acción de control es
+
+\begin{figure}[H]
+	\centering
+	\includesvg{img/sim_sinruido_u}
+	\caption{Acción de control.}
+\end{figure}
+
+\section{“Diagrama de bloques (con filtro de Kalman)”}
+
+\begin{figure}[H]
+	\centering
+	\includesvg{img/bloques2}
+	\caption{Intento de diagrama de bloques (con filtro de Kalman).}
+\end{figure}
+
+\section{Filtro de Kalman}
+
+Para implementar un filtro de Kalman, es necesario construir las siguientes matrices
+
+\emph{Belief} de estado actual $\pmb{x}$ y la matriz de covarianza $\pmb{P}$ que representa que tan seguro se está del estado actual. Para $\pmb{x}$ se ingresan los mismos valores que la condición inicial y para $\pmb{P}$ se utiliza la varianza de los sensores simulados, los valores de covarianza se dejan inicialmente en 0.
+
+Matriz de proceso $\pmb{F}$ que corresponde al sistema lineal muy similar a la matriz A del espacio estado, y también la matriz de control $\pmb{B}$ correspondiente al efecto de la acción de control sobre el sistema, similar a B del espacio estado.
+
+La ecuación del filtro de Kalman para realizar una predicción es la siguiente:
+
+\begin{equation*}x_{k+1} = \pmb{F} x_{k} + \pmb{B} u\end{equation*}
+
+Recordando la muy parecida ecuación del espacio estado:
+
+\begin{equation*}
+	\frac{d}{d t} \pmb{x}{\left(t \right)}
+	= A\pmb{x}(t) + B \pmb{u}(t)
+\end{equation*}
+
+Podemos obtener las matrices $\pmb{F}$ y $\pmb{B}$ del filtro de Kalman realizando el siguiente procedimiento, primero se multiplica ambos lados por $dt$ y se suma el estado anterior, considerando $x_k$ y $x(t)$ equivalentes.
+
+\begin{equation*}
+	\frac{d}{d t} \pmb{x}{\left(t \right)} \cdot dt + x_k
+	= A x_k \cdot dt + B \pmb{u}(t) \cdot dt + x_k
+\end{equation*}
+
+\begin{equation*}
+	x_{k+1}
+	= A x_k \cdot dt + B \pmb{u}(t) \cdot dt + x_k
+\end{equation*}
+
+Al lado derecho, se puede agrupar $A$ con $x_k$ y $dt$ de la siguiente manera
+
+\begin{equation*}
+	x_{k+1}
+	= (A \cdot dt + I) x_k + (B \cdot dt) u
+\end{equation*}
+
+De esta forma se obtienen las matrices $\pmb{F}$ y $\pmb{B}$ a partir de las matrices A y B del espacio estado.
+
+La matriz de imprecisión del proceso $\pmb{Q}$ se considera 0, la matriz de conversión de estado a espacio medición $\pmb{H}$ se considera como diagonal de unos, indicando que se tienen sensores que entregan las variables tal cual como están representadas en el vector estado, incluyendo un tipo de giroscopio para la variable de rotación.
+
+Finalmente la matriz $\pmb{R}$ de ruido es una diagonal con las varianzas de ruido presente en los sensores como indicado en las instrucciones del laboratorio.
+
+\begin{equation*}\pmb{x} = \left[\begin{matrix}200\\1000\\0\\-1\\-5\\0\end{matrix}\right]\end{equation*}
+
+\begin{equation*}\pmb{P} = \left[\begin{matrix}2500.0 & 0 & 0 & 0 & 0 & 0\\0 & 2500.0 & 0 & 0 & 0 & 0\\0 & 0 & 0.01 & 0 & 0 & 0\\0 & 0 & 0 & 25.0 & 0 & 0\\0 & 0 & 0 & 0 & 25.0 & 0\\0 & 0 & 0 & 0 & 0 & 0.01\end{matrix}\right]\end{equation*}
+
+\begin{equation*}\pmb{F} = \left[\begin{matrix}1.0 & 0 & 0 & 0.01666 & 0 & 0\\0 & 1.0 & 0 & 0 & 0.01666 & 0\\0 & 0 & 1.0 & 0 & 0 & 0.01666\\0 & 0 & 0.1635 & 1.0 & 0 & 0\\0 & 0 & 0 & 0 & 1.0 & 0\\0 & 0 & 0 & 0 & 0 & 1.0\end{matrix}\right]\end{equation*}
+
+\begin{equation*}\pmb{B} = \left[\begin{matrix}0 & 0\\0 & 0\\0 & 0\\0.000347222222222222 & -0.000347222222222222\\-0.00060140653040586 & -0.00060140653040586\\0.000743752588361787 & -0.000743752588361787\end{matrix}\right]\end{equation*}
+
+\begin{equation*}\pmb{H} = \left[\begin{matrix}1 & 0 & 0 & 0 & 0 & 0\\0 & 1 & 0 & 0 & 0 & 0\\0 & 0 & 1 & 0 & 0 & 0\\0 & 0 & 0 & 1 & 0 & 0\\0 & 0 & 0 & 0 & 1 & 0\\0 & 0 & 0 & 0 & 0 & 1\end{matrix}\right]\end{equation*}
+
+\begin{equation*}\pmb{R} = \left[\begin{matrix}2500.0 & 0 & 0 & 0 & 0 & 0\\0 & 2500.0 & 0 & 0 & 0 & 0\\0 & 0 & 0.01 & 0 & 0 & 0\\0 & 0 & 0 & 25.0 & 0 & 0\\0 & 0 & 0 & 0 & 25.0 & 0\\0 & 0 & 0 & 0 & 0 & 0.01\end{matrix}\right]\end{equation*}
+
+Notar que se incorpora un sensor tipo giroscopio muy preciso, esto es porque durante el desarrollo se observó que la rotación del satélite afecta muchísimo al movimiento.
+
+Para el desarrollo de las demás ecuaciones del filtro de Kalman, se utilizó la librería \emph{filterpy} como está descrito en el siguiente libro \url{https://github.com/rlabbe/Kalman-and-Bayesian-Filters-in-Python}
+
+\subsection{Agregando ruido y filtrándolo de los resultados anteriores}
+
+Recordemos el resultado de la simulación previa
+
+\begin{figure}[H]
+	\centering
+	\includesvg{img/sim_sinruido}
+	\caption{Estado sin ruido.}
+\end{figure}
+
+Si se le agrega ruido, se tiene
+
+\begin{figure}[H]
+	\centering
+	\includesvg{img/sim_conruido}
+	\caption{Estado con ruido.}
+\end{figure}
+
+Incorporando el filtro de Kalman
+
+\begin{figure}[H]
+	\centering
+	\includesvg{img/sim_conruido_ctrlperfecto}
+	\caption{Estado con ruido filtrado.}
+\end{figure}
+
+\section{Simulación con ruido}
+
+Para cada paso de la simulación, se extrajo el estado real del satélite y se le incorporó ruido de acuerdo a la varianza establecida. Esta medición con ruido es la que se introduce al filtro de Kalman y es con la salida del filtro que luego se evalúa la acción de control con la matriz de ganancia $K$, por lo que se tiene el peligro de que si el filtro no funciona, tampoco funcionara el control.
+
+Los resultados son los siguientes:
+
+\begin{figure}[H]
+	\centering
+	\includesvg{img/sim_conruido_zs}
+	\caption{Mediciones de posición obtenidas.}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includesvg{img/sim_conruido_kfx}
+	\caption{Mediciones de posición filtradas.}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includesvg{img/sim_conruido_us}
+	\caption{Acción de control.}
+\end{figure}
+
+\section{Conclusiones}
+
+Aún me sorprende lo efectivo del método de posicionamiento de polos para controlar sistemas de múltiples variables, lo encontré mágico en el ramo de sistemas de control y todavía es así, incluso para polos con números sin sentido el control usualmente funciona.
+
+Creo que las formas en que se presenta el filtro de Kalman en el material educativo parte muy simple con ejemplos como de mover un vehículo, pero rápidamente abruman con la notación matemática y las matrices y varios conceptos previos que se deben manejar. Encontrar el libro \url{https://github.com/rlabbe/Kalman-and-Bayesian-Filters-in-Python} fue un milagro y me gusta mucho como presentan el filtro, pude implementarlo aquí solo leyendo hasta la mitad del libro que es donde recién introducen a Kalman multivariable para sistemas lineales, pero que de todas formas aplico para el sistema no lineal.
+
+Este laboratorio representa todo lo que esperaba de este ramo, simular, inventar sensores y luego hacer control, lamentablemente fue al final del ramo donde se nos puso un desafío en mi opinión abordable, ya que el antiguo del cohete 3D resulto bastante complejo.
+
+
+
+\end{document}
