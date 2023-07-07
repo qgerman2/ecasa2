@@ -1,5 +1,5 @@
 # Fdb version 4
-["lualatex"] 1688705127 "c:/Users/asd/Documents/repos/ecasa2/main.tex" "out/main.pdf" "main" 1688705132 0
+["lualatex"] 1688766948 "c:/Users/asd/Documents/repos/ecasa2/main.tex" "out/main.pdf" "main" 1688766952 0
   "C:/texlive/2023/texmf-var/luatex-cache/generic/fonts/otl/lmmono10-regular.luc" 1686639200 81829 638f935d7d897f39008355b39a4b37ef ""
   "C:/texlive/2023/texmf-var/luatex-cache/generic/fonts/otl/lmroman10-bold.luc" 1687158341 128402 f50a82fbaf0f77cf38d22f701e7e3004 ""
   "C:/texlive/2023/texmf-var/luatex-cache/generic/fonts/otl/lmroman10-italic.luc" 1688692421 136304 e6535d685ed4bed99983a3e83141f6c3 ""
@@ -12,7 +12,7 @@
   "C:/texlive/2023/texmf-var/luatex-cache/generic/fonts/otl/lmroman7-regular.luc" 1687161719 128367 30eb8bbff24088a315efcb5ce4093e4d ""
   "C:/texlive/2023/texmf-var/luatex-cache/generic/fonts/otl/lmroman8-regular.luc" 1686639200 128138 4adcea49950ec95a0cb1a14fed559b90 ""
   "C:/texlive/2023/texmf-var/luatex-cache/generic/names/luaotfload-names.luc.gz" 1686627817 291286 c52e24687371f38ad33655c01af29b60 ""
-  "c:/Users/asd/Documents/repos/ecasa2/main.tex" 1688705106 20562 e4c5218feb88616b411080e93d0be67d ""
+  "c:/Users/asd/Documents/repos/ecasa2/main.tex" 1688766936 20562 e4c5218feb88616b411080e93d0be67d ""
   "c:/texlive/2023/texmf-dist/fonts/opentype/public/lm/lmmono10-regular.otf" 1686620693 64684 c6f5a48921f83c1a51d9384f785ddd5a ""
   "c:/texlive/2023/texmf-dist/fonts/opentype/public/lm/lmroman10-bold.otf" 1686620693 111240 1d60e9def74b1102bb4defa7cb772ee3 ""
   "c:/texlive/2023/texmf-dist/fonts/opentype/public/lm/lmroman10-italic.otf" 1686620693 118828 5d91d27a335c65bda4818de63abc25ce ""
@@ -209,10 +209,10 @@
   "img/sim_conruido_zs.svg" 1688704510 121447 ce689d72c713a36baa26aef387510a52 ""
   "img/sim_sinruido.svg" 1688704507 27719 d745f26ed92a6983c8a91772aa9c2c23 ""
   "img/sim_sinruido_u.svg" 1688704508 23983 2bf3d4654186f6a1b866cf40ffa294c8 ""
-  "img/sistema.svg" 1688689568 31454 a365b0d38669071eefec82f0fa925474 ""
-  "main.tex" 1688705106 20562 e4c5218feb88616b411080e93d0be67d ""
-  "out/main.aux" 1688705132 5419 554418370d0b791952c611ed5d3c5d33 "lualatex"
-  "out/main.out" 1688705132 2217 7518e38890fa5bff58bda994db58cefd "lualatex"
+  "img/sistema.svg" 1688766934 31454 50fcbbabf385666b6c3da772a275e6d4 ""
+  "main.tex" 1688766936 20562 e4c5218feb88616b411080e93d0be67d ""
+  "out/main.aux" 1688766952 5419 554418370d0b791952c611ed5d3c5d33 "lualatex"
+  "out/main.out" 1688766952 2217 7518e38890fa5bff58bda994db58cefd "lualatex"
   "svg-inkscape/bloques1_svg-tex.pdf" 1688695010 3152 d3d0d81f51109f65608988e42fc289db ""
   "svg-inkscape/bloques1_svg-tex.pdf_tex" 1688695010 2931 1aab4f8266f0fec50911efaf737ca7b9 ""
   "svg-inkscape/bloques2_svg-tex.pdf" 1688699114 4510 a22bb5e987d0ccf2c9131d06df8a7e0d ""
@@ -233,8 +233,8 @@
   "svg-inkscape/sim_sinruido_svg-tex.pdf_tex" 1688705114 2087 82cc2f7c44d22fe1b97b7489349dfbdd ""
   "svg-inkscape/sim_sinruido_u_svg-tex.pdf" 1688705116 16087 baf09fdb912cc82bdd2509f36f96c2df ""
   "svg-inkscape/sim_sinruido_u_svg-tex.pdf_tex" 1688705116 2091 27d67d97dbdc405ae07e6325eb8c1470 ""
-  "svg-inkscape/sistema_svg-tex.pdf" 1688690246 4049 c8c8abea7875ea24521ab8b84c27d9d4 ""
-  "svg-inkscape/sistema_svg-tex.pdf_tex" 1688690246 2424 1460e03ba39809490c69ccfe0de4f294 ""
+  "svg-inkscape/sistema_svg-tex.pdf" 1688766946 4050 4db21ccf63891accc8f6fd6e90dcd865 ""
+  "svg-inkscape/sistema_svg-tex.pdf_tex" 1688766946 2425 34138799d6e95eaac44472dbbff71c4b ""
   (generated)
   "out/main.aux"
   "out/main.log"

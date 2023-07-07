@@ -55,7 +55,7 @@
     \setlength\tabcolsep{0pt}%
     \put(0,0){\includegraphics[width=\unitlength,page=1]{sistema_svg-tex.pdf}}%
     \put(0.82546501,0.02248125){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{0}\smash{\begin{tabular}[t]{l}x\end{tabular}}}}%
-    \put(0.02246703,0.82547927){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{0}\smash{\begin{tabular}[t]{l}y\end{tabular}}}}%
+    \put(0.02246703,0.82547927){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{0}\smash{\begin{tabular}[t]{l}-y\end{tabular}}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=2]{sistema_svg-tex.pdf}}%
   \end{picture}%
 \endgroup%
